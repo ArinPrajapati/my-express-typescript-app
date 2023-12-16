@@ -34,7 +34,7 @@ This is a basic template for a Node.js Express application using TypeScript. It'
 3. Start the development server:
 
    ```bash
-   npm run Start    # or yarn Start
+   npm run start    # or yarn Start
    ```
 
    This command uses `nodemon` to watch for changes and automatically restarts the server.
