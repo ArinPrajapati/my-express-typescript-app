@@ -21,7 +21,7 @@ This is a basic template for a Node.js Express application using TypeScript. It'
 1. Clone the repository:
 
    ```bash
-   git clone https://github.com/your-username/my-express-typescript-app.git
+   git clone https://github.com/ArinPrajapati/my-express-typescript-app.git
    ```
 
 2. Install dependencies:
