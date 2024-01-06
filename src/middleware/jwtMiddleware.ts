@@ -4,7 +4,7 @@ import * as jwt from "jsonwebtoken";
 declare global {
   namespace Express {
     interface Request {
-      data?: jwt.JwtPayload;
+      data?: string | jwt.JwtPayload | undefined;
     }
   }
 }
@@ -22,21 +22,19 @@ export const jwtMiddleware = (
     return res.status(401).json({ message: "No token provided" });
   }
 
-  // Verify and decode the token
-  jwt.verify(
-    token,
-    process.env.JWT_SECRET,
-    (err: jwt.VerifyErrors | null, decoded: jwt.JwtPayload | undefined) => {
-      if (err) {
-        return res
-          .status(403)
-          .json({ message: "Failed to authenticate token" });
-      }
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({ message: "JWT secret is not defined" });
+  }
 
-      // Store the decoded token in the request for further use
-      req.data = decoded;
-      console.log(req.data);
-      next();
+  // Verify and decode the token
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) {
+      return res.status(403).json({ message: "Failed to authenticate token" });
     }
-  );
+
+    // Store the decoded token in the request for further use
+    req.data = decoded;
+    console.log(req.data);
+    next();
+  });
 };
