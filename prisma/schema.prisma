@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// User: Stores user details and their relations to products, reviews, and orders.
+model User {
+  id        Int       @id @unique @default(autoincrement())
+  username  String    
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+  reviews   Review[]
+  orders    Order[]
+  Cart      Cart[]
+  role      String    @default("user")
+}
+
+// Product: Represents products listed on the marketplace with relations to reviews and order items.
+model Product {
+  id          Int         @id @unique @default(autoincrement())
+  name        String
+  description String
+  price       Float
+  imageUrl    String
+  category    String
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  sellerId    Int
+  sellerName  String
+  reviews     Review[]
+  orderItems  OrderItem[]
+  CartItem    CartItem[]
+  Category    Category?   @relation(fields: [categoryId], references: [id])
+  categoryId  Int?
+  User        User?       @relation(fields: [userId], references: [id])
+  userId      Int?
+}
+
+// Review: Stores reviews for products, linked to users and products.
+model Review {
+  id        Int      @id @unique @default(autoincrement())
+  rating    Int      @default(0)
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id])
+}
+
+// Order: Represents an order containing multiple order items, linked to a user.
+model Order {
+  id          Int         @id @unique @default(autoincrement())
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  userId      Int
+  user        User        @relation(fields: [userId], references: [id])
+  orderItems  OrderItem[]
+  totalAmount Float
+}
+
+// OrderItem: Contains the details of individual items in an order, linked to a product and an order.
+model OrderItem {
+  id        Int     @id @unique @default(autoincrement())
+  quantity  Int
+  price     Float
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  orderId   Int
+  order     Order   @relation(fields: [orderId], references: [id])
+}
+
+//Cart: Stores the user's cart and its items.
+model Cart {
+  id        Int        @id @unique @default(autoincrement())
+  userId    Int
+  user      User       @relation(fields: [userId], references: [id])
+  cartItems CartItem[]
+}
+
+// cartItem: Represents items in the user's cart, linked to a product and a cart.
+
+model CartItem {
+  id        Int     @id @unique @default(autoincrement())
+  quantity  Int
+  productId Int
+  product   Product @relation(fields: [productId], references: [id])
+  cartId    Int
+  cart      Cart    @relation(fields: [cartId], references: [id])
+}
+
+// Category: Represents a category of products, linked to products.
+model Category {
+  id       Int       @id @unique @default(autoincrement())
+  name     String
+  products Product[]
+}
